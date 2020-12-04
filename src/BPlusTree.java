@@ -1,3 +1,4 @@
+
 /**
  * Implement B+ tree
  *
@@ -53,8 +54,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			this.root = t;
 		this.left = (LeafNode<T, V>) this.root.refreshLeft();
 
-		System.out.print("Insert completed, the current root node is: ");
-
+		System.out.println("Insert completed, the current root node is:");
 		for (int j = 0; j < this.root.number; j++) {
 			System.out.print((V) this.root.keys[j] + " ");
 		}
