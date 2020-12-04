@@ -1,10 +1,3 @@
-/**
- * Implement B+ tree
- *
- * @param <T> specifies the value type
- * @param <V> uses generics, specifies the index type, and specifies that you
- *            must inherit Comparable
- */
 public class BPlusTree<T, V extends Comparable<V>> {
 	// B+ tree order
 	private Integer bTreeOrder;
@@ -34,7 +27,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 		this.root = new LeafNode<T, V>();
 		this.left = null;
 	}
-
+	
 	// Inquire
 	public T find(V key) {
 		T t = this.root.find(key);
@@ -65,17 +58,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 	
 	
 	
-	
-	/**
-	 * Node parent class, because in the B+ tree, non-leaf nodes do not need to
-	 * store specific data, just need to use the index as a key. So the leaves and
-	 * non-leaf nodes are not the same, but they share some methods, so use the Node
-	 * class as the parent class. And because you want to call some public methods
-	 * to each other, use abstract classes
-	 *
-	 * @param <T> with BPlusTree
-	 * @param <V>
-	 */
+	// Node parent class
 	abstract class Node<T, V extends Comparable<V>> {
 		// parent node
 		protected Node<T, V> parent;
@@ -107,12 +90,8 @@ public class BPlusTree<T, V extends Comparable<V>> {
 	
 	
 	
-	/**
-	 * Non-leaf node class
-	 * 
-	 * @param <T>
-	 * @param <V>
-	 */
+// Non-leaf node class
+	
 
 	class BPlusNode<T, V extends Comparable<V>> extends Node<T, V> {
 
@@ -120,13 +99,8 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			super();
 		}
 
-		/**
-		 * Recursive lookup, here is just to determine exactly which value the value is
-		 * in, the real find the leaf node will check
-		 * 
-		 * @param key
-		 * @return
-		 */
+		// Recursive lookup
+		
 		@Override
 		T find(V key) {
 			int i = 0;
@@ -140,13 +114,8 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			return this.childs[i].find(key);
 		}
 
-		/**
-		 * Recursive insertion, first insert the value into the corresponding leaf node,
-		 * and finally call the insert class of the leaf node
-		 * 
-		 * @param value
-		 * @param key
-		 */
+		// Recursive insertion
+	
 		@Override
 		Node<T, V> insert(T value, V key) {
 			int i = 0;
@@ -172,14 +141,8 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			return this.childs[0].refreshLeft();
 		}
 
-		/**
-		 * When the leaf node inserts successfully completes the decomposition,
-		 * recursively inserts a new node to the parent node to maintain balance
-		 * 
-		 * @param node1
-		 * @param node2
-		 * @param key
-		 */
+//Here it recursively inserts a new node to the parent node to maintain balance
+
 		Node<T, V> insertNode(Node<T, V> node1, Node<T, V> node2, V key) {
 
 // System.out.println("non-leaf node, insert key: " + node1.keys[node1.number - 1] + " " + node2.keys[node2.number - 1]);
@@ -187,7 +150,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			V oldKey = null;
 			if (this.number > 0)
 				oldKey = (V) this.keys[this.number - 1];
-			// If the original key is null, indicating that this non-node is empty, you can
+			// If the original key is null, indicating that this non-node is empty, it can
 			// directly put in two nodes
 			if (key == null || this.number <= 0) {
 // System.out.println("non-leaf node, insert key: " + node1.keys[node1.number - 1] + " " + node2.keys[node2.number - 1] + "direct insert");
@@ -198,13 +161,13 @@ public class BPlusTree<T, V extends Comparable<V>> {
 				this.number += 2;
 				return this;
 			}
-			// The original node is not empty, you should first find the location of the
+			// The original node is not empty, we should first find the location of the
 			// original node, and then insert the new node into the original node
 			int i = 0;
 			while (key.compareTo((V) this.keys[i]) != 0) {
 				i++;
 			}
-			// The maximum value of the left node can be inserted directly, and the right
+			// The maximum value of the left node can be inserted directly, therefore the right
 			// side should be moved and inserted.
 			this.keys[i] = node1.keys[node1.number - 1];
 			this.childs[i] = node1;
@@ -240,13 +203,10 @@ public class BPlusTree<T, V extends Comparable<V>> {
 
 			// Create a new non-leaf node, as the right half of the split
 			BPlusNode<T, V> tempNode = new BPlusNode<T, V>();
-			// After the non-leaf node split, the parent node pointer of its child node
-			// should be updated to the correct pointer
+			// After the non-leaf node split, the parent node pointer of its child node should be updated correctly.
 			tempNode.number = this.number - middle;
 			tempNode.parent = this.parent;
-			// If the parent node is empty, create a new non-leaf node as the parent node,
-			// and let the pointers of the two non-leaf nodes that are successfully split
-			// point to the parent node.
+			// If the parent node is empty, create a new non-leaf node as the parent node, and update the pointers to the new parent node correctly.
 			if (this.parent == null) {
 
 // System.out.println("non-leaf node, insert key: " + node1.keys[node1.number - 1] + " " + node2.keys[node2.number - 1] + ", create new parent node") ;
@@ -268,8 +228,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			System.arraycopy(tempKeys, 0, this.keys, 0, middle);
 			System.arraycopy(tempChilds, 0, this.childs, 0, middle);
 
-			// After the leaf node is successfully split, the newly generated node needs to
-			// be inserted into the parent node.
+			// After the leaf node is successfully split, the newly generated node should be inserted into the parent node.
 			BPlusNode<T, V> parentNode = (BPlusNode<T, V>) this.parent;
 			return parentNode.insertNode(this, tempNode, oldKey);
 		}
@@ -281,12 +240,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 	
 	
 	
-	/**
-	 * Leaf node class
-	 * 
-	 * @param <T>
-	 * @param <V>
-	 */
+//Leaf node class
 	class LeafNode<T, V extends Comparable<V>> extends Node<T, V> {
 
 		protected Object values[];
@@ -300,13 +254,9 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			this.right = null;
 		}
 
-		/**
-		 * Find, classic binary search, no more comments
-		 * 
-		 * @param key
-		 * @return
-		 */
-		@Override
+// the classic binary search
+
+
 		T find(V key) {
 			if (this.number <= 0)
 				return null;
@@ -331,12 +281,8 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			return null;
 		}
 
-		/**
-		 *
-		 * @param value
-		 * @param key
-		 */
-		@Override
+
+
 		Node<T, V> insert(T value, V key) {
 
 // System.out.println("leaf node, insert key: " + key);
@@ -353,7 +299,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 				i++;
 			}
 
-			// Copy the array, complete the addition
+			// Copy the array and thencomplete the insertion
 			Object tempKeys[] = new Object[maxNumber];
 			Object tempValues[] = new Object[maxNumber];
 			System.arraycopy(this.keys, 0, tempKeys, 0, i);
@@ -370,14 +316,14 @@ public class BPlusTree<T, V extends Comparable<V>> {
 //                System.out.print(tempKeys[j] + " ");
 //            System.out.println();
 
-			// Determine whether you need to split
+			// Determine whether you need to split 
 			// If you do not need to split to complete the copy and return directly
 			if (this.number <= bTreeOrder) {
 				System.arraycopy(tempKeys, 0, this.keys, 0, this.number);
 				System.arraycopy(tempValues, 0, this.values, 0, this.number);
 
-				// It is possible that although there is no node split, the value actually
-				// inserted is greater than the original maximum, so the boundary values ​​of
+				// It is showing a potential case that although there is no node split, the value actually
+				// inserted is greater than the original maximum value, so the boundary values ​​of
 				// all parent nodes are updated.
 				Node node = this;
 				while (node.parent != null) {
@@ -394,7 +340,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 
 // System.out.println("leaf node, insert key: " + key + ", need to split");
 
-			// If you need to split, split the node from the middle of the two parts
+			// If there is needed to split, split the node from the middle of the two parts
 			Integer middle = this.number / 2;
 
 			// New leaf node, as the right half of the split
@@ -402,8 +348,7 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			tempNode.number = this.number - middle;
 			tempNode.parent = this.parent;
 			// If the parent node is empty, create a new non-leaf node as the parent node,
-			// and let the pointers of the two leaf nodes that are successfully split point
-			// to the parent node.
+			// and update the pointers of the new node correctly
 			if (this.parent == null) {
 
 // System.out.println("leaf node, insert key: " + key + ", parent node is empty, create new parent node");
@@ -432,11 +377,9 @@ public class BPlusTree<T, V extends Comparable<V>> {
 			return parentNode.insertNode(this, tempNode, oldKey);
 		}
 
-		@Override
 		LeafNode<T, V> refreshLeft() {
 			if (this.number <= 0)
 				return null;
 			return this;
 		}
 	}
-}
